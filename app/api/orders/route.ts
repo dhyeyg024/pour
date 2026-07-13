@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { PRODUCT_MAP } from "@/lib/products";
 
 // GET /api/orders — fetch user's order history
 export async function GET() {
@@ -19,11 +18,38 @@ export async function GET() {
   return NextResponse.json(orders);
 }
 
-// POST /api/orders — create order from current cart, then clear cart
-export async function POST() {
+// POST /api/orders — create order from current cart after payment is verified
+export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Parse shipping + payment details from request body
+  let body: {
+    shippingName?: string;
+    shippingAddress?: string;
+    shippingPhone?: string;
+    shippingEmail?: string;
+    razorpayOrderId?: string;
+    razorpayPaymentId?: string;
+  } = {};
+  try { body = await req.json(); } catch { /* empty body is fine */ }
+
+  const {
+    shippingName,
+    shippingAddress,
+    shippingPhone,
+    shippingEmail,
+    razorpayOrderId,
+    razorpayPaymentId,
+  } = body;
+
+  if (!shippingName?.trim() || !shippingAddress?.trim() || !shippingPhone?.trim()) {
+    return NextResponse.json(
+      { error: "Full name, address and mobile number are required." },
+      { status: 400 }
+    );
   }
 
   const cart = await db.cart.findUnique({
@@ -36,7 +62,7 @@ export async function POST() {
   }
 
   const total = cart.items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
+    (sum, item) => sum + item.unitPrice * item.quantity,
     0
   );
 
@@ -45,12 +71,19 @@ export async function POST() {
       data: {
         userId: session.user.id,
         total,
-        status: "PENDING",
+        // CONFIRMED because Razorpay payment was verified before this call
+        status: razorpayPaymentId ? "CONFIRMED" : "PENDING",
+        shippingName: shippingName.trim(),
+        shippingAddress: shippingAddress.trim(),
+        shippingPhone: shippingPhone.trim(),
+        shippingEmail: shippingEmail?.trim() || null,
+        razorpayOrderId: razorpayOrderId ?? null,
+        razorpayPaymentId: razorpayPaymentId ?? null,
         items: {
           create: cart.items.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
-            priceAtOrder: item.product.price
+            priceAtOrder: item.unitPrice
           }))
         }
       },

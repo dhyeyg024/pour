@@ -93,6 +93,8 @@ model CartItem {
   cartId    String
   productId String
   quantity  Int    @default(1)
+  // pack price the user selected (e.g. 1049 for Pack of 8, 149 for single can)
+  unitPrice Float @default(150)
 
   cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id])
@@ -109,6 +111,16 @@ model Order {
   total     Float
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+
+  // Shipping / contact details collected at checkout
+  shippingName    String  @default("")
+  shippingAddress String  @default("")
+  shippingPhone   String  @default("")
+  shippingEmail   String?
+
+  // Razorpay payment reference (set after successful payment)
+  razorpayOrderId   String?
+  razorpayPaymentId String?
 
   user  User        @relation(fields: [userId], references: [id])
   items OrderItem[]

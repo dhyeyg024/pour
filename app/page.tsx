@@ -1,44 +1,46 @@
+"use client";
+
+import { useRef } from "react";
 import Image from "next/image";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 import type { CSSProperties, ReactNode } from "react";
 import { ArrowRight, Check, Droplets, Leaf, Mail, Phone, Sparkles } from "lucide-react";
 import { TrackButton } from "@/components/TrackButton";
 import { NavBar } from "@/components/NavBar";
-import { AddToCartButton } from "@/components/AddToCartButton";
+import { PackSelector } from "@/components/PackSelector";
 import { ImageCarousel } from "@/components/ImageCarousel";
 
 const flavours = [
   {
     id: "guava-chilli",
     name: "Guava Chilli",
-    tone: "Spicy tropical",
     description:
-      "Pink guava freshness with a clean chilli finish for people who like their hydration with a little spark.",
+      "India's most unexpected protein flavour. Pink guava with a slow chilli finish - refreshing first, warm second. The can nobody puts down after one sip.",
     accent: "#f05a45",
     image: "/images/guava-chilli-hero.png",
     splash: "/images/guava-chilli-splash.png",
-    price: 150
   },
   {
     id: "raw-mango",
     name: "Raw Mango",
-    tone: "Tangy bright",
     description:
-      "Sharp green mango notes, citrusy lift, and a crisp finish built for hot afternoons and post-workout resets.",
+      "Kachha aam in a can. Sharp, tangy, and built for hot afternoons. The flavour every Indian already knows - now doing protein work.",
     accent: "#f2c21b",
     image: "/images/raw-mango-hero.png",
     splash: "/images/raw-mango-splash.png",
-    price: 150
   },
   {
     id: "watermelon",
     name: "Watermelon",
-    tone: "Juicy light",
     description:
-      "A cool watermelon profile with a refreshing fruit-water feel and a clean zero-sugar finish.",
+      "Cool, clean, and crisp. The easiest POUR to drink - refreshing fruit water energy with 10g of protein underneath it.",
     accent: "#ff3030",
     image: "/images/watermelon-hero.png",
     splash: "/images/watermelon-splash.png",
-    price: 150
   }
 ];
 
@@ -69,14 +71,147 @@ const productSchema = {
   offers: {
     "@type": "Offer",
     priceCurrency: "INR",
-    price: "150",
+    price: "149",
     availability: "https://schema.org/InStock"
   }
 };
 
 export default function Home() {
+  const container = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    // Hero Load Animations
+    const tl = gsap.timeline();
+    tl.fromTo(".heroBg",
+      { scale: 1.1, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 1.5, ease: "power3.out" }
+    )
+      .fromTo(".heroContent .eyebrow, .heroContent h1, .heroContent .heroCopy",
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, stagger: 0.2, ease: "power3.out" },
+        "-=1"
+      )
+      .fromTo(".heroActions > *",
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power2.out" },
+        "-=0.4"
+      )
+      .fromTo(".heroStats > div",
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power2.out" },
+        "-=0.4"
+      );
+
+    // Scroll Animations for Intro
+    gsap.fromTo(".intro > div:first-child",
+      { y: 30, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".intro",
+          start: "top 85%",
+        }
+      }
+    );
+
+    gsap.fromTo(".introGrid .feature",
+      { y: 50, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".introGrid",
+          start: "top 85%",
+        }
+      }
+    );
+
+    // Scroll Animations for Flavours
+    gsap.fromTo(".sectionHeader",
+      { y: 30, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".flavours",
+          start: "top 85%",
+        }
+      }
+    );
+
+    gsap.fromTo(".flavourCard",
+      { y: 50, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".flavourGrid",
+          start: "top 85%",
+        }
+      }
+    );
+
+    // Scroll Animations for Nutrition
+    gsap.fromTo(".nutritionVisual",
+      { x: -30, opacity: 0 },
+      {
+        x: 0,
+        opacity: 1,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".nutrition",
+          start: "top 80%",
+        }
+      }
+    );
+
+    gsap.fromTo(".nutritionContent > *",
+      { x: 30, opacity: 0 },
+      {
+        x: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".nutrition",
+          start: "top 80%",
+        }
+      }
+    );
+
+
+    // Contact Section
+    gsap.fromTo(".contact > div, .contactActions > *",
+      { y: 30, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".contact",
+          start: "top 85%",
+        }
+      }
+    );
+  }, { scope: container });
+
   return (
-    <main>
+    <main ref={container}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
@@ -97,28 +232,27 @@ export default function Home() {
         </div>
 
         <div className="heroContent">
-          <p className="eyebrow">Protein water made for more</p>
+          <p className="eyebrow">CARBONATED PROTEIN WATER - MADE IN INDIA</p>
           <h1>POUR Protein Water</h1>
           <p className="heroCopy">
-            A refreshing way to add protein to your day. Clean nutrition, real fruit
-            flavour, zero sugar, and 10g protein in every chilled can.
+            Looks like a sparking drink. Hits like Protein. 10g protein, real fruit flavour, ZERO sugar - in every chilled can.
           </p>
           <div className="heroActions">
             <TrackButton
               className="primaryButton"
               eventName="cta_click"
               eventLabel="hero_enquiry"
-              href="#contact"
+              href="#flavours-header"
             >
-              Enquire now <ArrowRight size={18} aria-hidden="true" />
+              Shop now <ArrowRight size={18} aria-hidden="true" />
             </TrackButton>
             <TrackButton
               className="secondaryButton"
               eventName="cta_click"
               eventLabel="hero_flavours"
-              href="#flavours"
+              href="#contact"
             >
-              View flavours
+              For Enquiry
             </TrackButton>
           </div>
           <dl className="heroStats" aria-label="POUR highlights">
@@ -140,18 +274,18 @@ export default function Home() {
 
       <section className="intro section" aria-labelledby="why-pour">
         <div>
-          <p className="sectionKicker">Clean refreshment</p>
+          <p className="sectionKicker">Why POUR exists</p>
           <h2 id="why-pour">Protein that drinks like water.</h2>
         </div>
         <div className="introGrid">
-          <Feature icon={<Droplets />} title="Light and sparkling" text="Carbonated protein water designed to feel crisp, not heavy." />
-          <Feature icon={<Leaf />} title="Real fruit flavour" text="Fruit-led profiles across guava chilli, raw mango, and watermelon." />
-          <Feature icon={<Sparkles />} title="Nothing unnecessary" text="Zero sugar, low calorie, and easy to drink chilled." />
+          <Feature icon={<Droplets />} title="Light and sparkling" text="Carbonated. Crisp. Nothing thick, nothing chalky. Crack it open cold and drink the whole thing." />
+          <Feature icon={<Leaf />} title="Real fruit flavour" text="Guava Chilli. Raw Mango. Watermelon. Built for the Indian palate - not copied from a Western supplement catalogue." />
+          <Feature icon={<Sparkles />} title="Nothing unnecessary" text="Zero sugar. Zero fat. No preservatives. No artificial colours. Just protein, fruit, and carbonated water." />
         </div>
       </section>
 
       <section className="flavours section" id="flavours" aria-labelledby="flavours-title">
-        <div className="sectionHeader">
+        <div className="sectionHeader" id="flavours-header">
           <p className="sectionKicker">Three flavours</p>
           <h2 id="flavours-title">Choose your POUR.</h2>
         </div>
@@ -171,30 +305,19 @@ export default function Home() {
                   loading="lazy"
                 />
               </div>
-              <p>{flavour.tone}</p>
+              {/* <p>{flavour.tone}</p> */}
               <h3>{flavour.name}</h3>
               <span className="flavourLine" />
               <p className="flavourText">{flavour.description}</p>
-              <div className="flavourCardFooter">
-                <span className="flavourPrice">₹{flavour.price} / can</span>
-                <AddToCartButton
-                  item={{
-                    id: flavour.id,
-                    name: flavour.name,
-                    accent: flavour.accent,
-                    image: flavour.image,
-                    price: flavour.price
-                  }}
-                />
-              </div>
-              <TrackButton
-                className="textButton"
-                eventName="flavour_interest"
-                eventLabel={flavour.name}
-                href="#contact"
-              >
-                Ask for {flavour.name} <ArrowRight size={16} aria-hidden="true" />
-              </TrackButton>
+              <PackSelector
+                item={{
+                  id: flavour.id,
+                  name: flavour.name,
+                  accent: flavour.accent,
+                  image: flavour.image,
+                }}
+              />
+
             </article>
           ))}
         </div>
@@ -213,10 +336,10 @@ export default function Home() {
         </div>
         <div className="nutritionContent">
           <p className="sectionKicker">Nutrition facts</p>
-          <h2 id="nutrition-title">Built for everyday protein, without sugar.</h2>
+          <h2 id="nutrition-title">Built for people who don't want to think about protein.
+          </h2>
           <p>
-            POUR is made with whey protein isolate and crafted as a refreshing,
-            fruit-flavoured protein water. Enjoy chilled and shake gently.
+            POUR is made with whey protein isolate - the cleanest protein source available. Crafted to be drunk cold, not mixed, not measured, not thought about. Just opened.
           </p>
           <div className="nutritionGrid">
             {nutrition.map(([label, value]) => (
@@ -230,30 +353,13 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="adReady section" aria-labelledby="ad-ready-title">
-        <div>
-          <p className="sectionKicker">Ready for performance marketing</p>
-          <h2 id="ad-ready-title">Made to measure visitor intent.</h2>
-          <p>
-            The site already includes click events for enquiries, flavour interest,
-            and primary calls to action through a data layer. Google Tag Manager,
-            Meta Pixel, Google Ads, or analytics tools can be added without changing
-            the page structure.
-          </p>
-        </div>
-        <ul>
-          <li><Check size={18} aria-hidden="true" /> SEO metadata and product schema</li>
-          <li><Check size={18} aria-hidden="true" /> Campaign-friendly call-to-action tracking</li>
-          <li><Check size={18} aria-hidden="true" /> Fast static-first Next.js landing page</li>
-        </ul>
-      </section>
 
       <section className="contact section" id="contact" aria-labelledby="contact-title">
         <div>
           <p className="sectionKicker">Contact</p>
           <h2 id="contact-title">Bring POUR to your customers.</h2>
           <p>
-            For retail, distributor, sampling, or bulk enquiries, contact POUR Beverages.
+            For retail stocking, distributor partnerships, or bulk orders - get in touch. We are currently onboarding our first retail and distribution partners across India.
           </p>
         </div>
         <div className="contactActions">

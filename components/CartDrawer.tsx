@@ -6,13 +6,13 @@ import { X, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { CheckoutModal } from "@/components/CheckoutModal";
 
 export function CartDrawer() {
-  const { items, isOpen, closeCart, removeItem, updateQty, totalItems, totalPrice, checkout } = useCart();
+  const { items, isOpen, closeCart, removeItem, updateQty, totalItems, totalPrice } = useCart();
   const { user } = useAuth();
   const router = useRouter();
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [checkoutMsg, setCheckoutMsg] = useState<string | null>(null);
+  const [showCheckout, setShowCheckout] = useState(false);
 
   if (!isOpen) return null;
 
@@ -72,7 +72,9 @@ export function CartDrawer() {
                   </div>
                   <div className="cartItemInfo">
                     <p className="cartItemName">{item.name}</p>
-                    <p className="cartItemPrice">₹{item.price} / can</p>
+                    <p className="cartItemPrice">
+                      {item.packLabel ?? "1 Can"} · ₹{item.price.toLocaleString("en-IN")}
+                    </p>
                     <div className="cartQty">
                       <button
                         className="qtyBtn"
@@ -115,30 +117,15 @@ export function CartDrawer() {
           <footer className="cartFooter">
             <div className="cartTotal">
               <span>Total</span>
-              <strong>₹{totalPrice}</strong>
+              <strong>₹{totalPrice.toLocaleString("en-IN")}</strong>
             </div>
-            {checkoutMsg && (
-              <p className="cartCheckoutMsg">{checkoutMsg}</p>
-            )}
             {user ? (
               <button
                 className="primaryButton cartCheckout"
                 id="cart-checkout-btn"
-                disabled={checkoutLoading}
-                onClick={async () => {
-                  setCheckoutLoading(true);
-                  setCheckoutMsg(null);
-                  const result = await checkout();
-                  setCheckoutLoading(false);
-                  if (result.ok) {
-                    setCheckoutMsg(`🎉 Order placed! ID: ${result.orderId?.slice(0, 8)}…`);
-                    setTimeout(() => { closeCart(); setCheckoutMsg(null); }, 3000);
-                  } else {
-                    setCheckoutMsg(result.error ?? "Checkout failed.");
-                  }
-                }}
+                onClick={() => setShowCheckout(true)}
               >
-                {checkoutLoading ? "Placing order…" : "Checkout"}
+                Checkout
               </button>
             ) : (
               <>
@@ -155,6 +142,11 @@ export function CartDrawer() {
           </footer>
         )}
       </aside>
+
+      {/* Checkout modal — rendered on top of the drawer */}
+      {showCheckout && (
+        <CheckoutModal onClose={() => setShowCheckout(false)} />
+      )}
     </>
   );
 }

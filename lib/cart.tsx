@@ -13,12 +13,18 @@ import { useSession } from "next-auth/react";
 import { PRODUCT_MAP } from "@/lib/products";
 
 export type CartItem = {
-  id: string;       // product slug / productId
+  id: string;       // compound cart-line key: "<slug>-<cans>" (or just slug for single cans)
+  productId: string; // raw product slug — used for API calls (e.g. "guava-chilli")
   name: string;
   accent: string;
   image: string;
+  /** For pack purchases: total pack price (e.g. 799 for Pack of 6). For single cans: 149. */
   price: number;
-  quantity: number;
+  quantity: number; // number of packs in cart (usually 1); cans = quantity × cans
+  /** Human-readable pack label, e.g. "Pack of 6" */
+  packLabel?: string;
+  /** Number of cans in the selected pack */
+  cans?: number;
 };
 
 type CartCtx = {
@@ -33,7 +39,7 @@ type CartCtx = {
   clearCart: () => void;
   openCart: () => void;
   closeCart: () => void;
-  checkout: () => Promise<{ ok: boolean; orderId?: string; error?: string }>;
+  checkout: (details: { shippingName: string; shippingAddress: string; shippingPhone: string; shippingEmail?: string; razorpayOrderId?: string; razorpayPaymentId?: string }) => Promise<{ ok: boolean; orderId?: string; error?: string }>;
 };
 
 const CartContext = createContext<CartCtx | null>(null);
@@ -66,6 +72,7 @@ function fromServer(serverItem: {
 }): CartItem {
   return {
     id: serverItem.productId,
+    productId: serverItem.productId,
     name: serverItem.product.name,
     accent: serverItem.product.accent,
     image: serverItem.product.image,
@@ -159,7 +166,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         await fetch("/api/cart", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productId: item.id, quantity: 1 })
+          body: JSON.stringify({ productId: item.productId, quantity: 1, unitPrice: item.price })
         }).catch(console.error);
       }
     },
@@ -168,14 +175,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const removeItem = useCallback(
     async (id: string) => {
+      let productId = id;
       setItems((prev) => {
+        const found = prev.find((i) => i.id === id);
+        if (found) productId = found.productId;
         const next = prev.filter((i) => i.id !== id);
         if (!userId) writeGuestCart(next);
         return next;
       });
 
       if (userId) {
-        await fetch(`/api/cart/${id}`, { method: "DELETE" }).catch(console.error);
+        await fetch(`/api/cart/${productId}`, { method: "DELETE" }).catch(console.error);
       }
     },
     [userId]
@@ -184,14 +194,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const updateQty = useCallback(
     async (id: string, qty: number) => {
       if (qty < 1) return;
+      let productId = id;
       setItems((prev) => {
+        const found = prev.find((i) => i.id === id);
+        if (found) productId = found.productId;
         const next = prev.map((i) => (i.id === id ? { ...i, quantity: qty } : i));
         if (!userId) writeGuestCart(next);
         return next;
       });
 
       if (userId) {
-        await fetch(`/api/cart/${id}`, {
+        await fetch(`/api/cart/${productId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ quantity: qty })
@@ -206,10 +219,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
     clearGuestCart();
   }, []);
 
-  const checkout = useCallback(async () => {
+  const checkout = useCallback(async (details: {
+    shippingName: string;
+    shippingAddress: string;
+    shippingPhone: string;
+    shippingEmail?: string;
+    razorpayOrderId?: string;
+    razorpayPaymentId?: string;
+  }) => {
     if (!userId) return { ok: false, error: "Not logged in." };
     try {
-      const res = await fetch("/api/orders", { method: "POST" });
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(details)
+      });
       if (!res.ok) {
         const data = await res.json();
         return { ok: false, error: data.error ?? "Checkout failed." };
