@@ -1,65 +1,82 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, useEffect, useRef } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { Eye, EyeOff, ArrowLeft, Droplets } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft, Droplets } from "lucide-react";
 import Link from "next/link";
 
-type Mode = "login" | "signup";
+type Step = "email" | "otp";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [mode, setMode] = useState<Mode>("login");
-  const [name, setName] = useState("");
+  const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPass, setShowPass] = useState(false);
+  const [otp, setOtp] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
 
-  const switchMode = (m: Mode) => {
-    setMode(m);
-    setError(null);
-    setName("");
-    setEmail("");
-    setPassword("");
-  };
+  const otpInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (cooldown > 0) {
+      timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [cooldown]);
+
+  const handleSendOtp = async (e?: FormEvent) => {
+    if (e) e.preventDefault();
+    if (!email) return;
+
     setError(null);
     setLoading(true);
 
     try {
-      if (mode === "signup") {
-        // 1. Create account via API
-        const res = await fetch("/api/auth/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password })
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          setError(data.error ?? "Sign up failed.");
-          setLoading(false);
-          return;
-        }
-        // 2. Sign in immediately after signup
-      }
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
 
-      // Sign in (for both login and post-signup)
+      if (!res.ok) {
+        setError(data.error ?? "Failed to send OTP.");
+      } else {
+        setStep("otp");
+        setCooldown(60); // 60s cooldown for resend
+        setTimeout(() => otpInputRef.current?.focus(), 100);
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!otp) return;
+
+    setError(null);
+    setLoading(true);
+
+    try {
       const result = await signIn("credentials", {
         email,
-        password,
+        otp,
         redirect: false
       });
 
       if (result?.error) {
-        setError("Invalid email or password.");
+        setError("Invalid or expired OTP.");
       } else {
-        router.push("/");
+        const callbackUrl = searchParams?.get("callbackUrl") || "/";
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch {
@@ -90,107 +107,91 @@ export default function LoginPage() {
         </div>
 
         <h1 className="authTitle">
-          {mode === "login" ? "Welcome back" : "Create account"}
+          {step === "email" ? "Welcome" : "Enter Code"}
         </h1>
         <p className="authSub">
-          {mode === "login"
-            ? "Sign in to manage your cart and orders."
-            : "Join POUR and start exploring protein water."}
+          {step === "email"
+            ? "Enter your email to sign in or create an account."
+            : `We sent a 6-digit code to ${email}`}
         </p>
 
-        {/* Tabs */}
-        <div className="authTabs" role="tablist">
-          <button
-            role="tab"
-            aria-selected={mode === "login"}
-            className={`authTab ${mode === "login" ? "authTabActive" : ""}`}
-            onClick={() => switchMode("login")}
-            id="auth-tab-login"
-          >
-            Sign In
-          </button>
-          <button
-            role="tab"
-            aria-selected={mode === "signup"}
-            className={`authTab ${mode === "signup" ? "authTabActive" : ""}`}
-            onClick={() => switchMode("signup")}
-            id="auth-tab-signup"
-          >
-            Sign Up
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} noValidate className="authForm">
-          {mode === "signup" && (
+        {step === "email" ? (
+          <form onSubmit={handleSendOtp} noValidate className="authForm">
             <div className="authField">
-              <label htmlFor="auth-name">Full name</label>
+              <label htmlFor="auth-email">Email address</label>
               <input
-                id="auth-name"
-                type="text"
-                autoComplete="name"
-                placeholder="Arjun Mehta"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                id="auth-email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 className="authInput"
               />
             </div>
-          )}
 
-          <div className="authField">
-            <label htmlFor="auth-email">Email address</label>
-            <input
-              id="auth-email"
-              type="email"
-              autoComplete={mode === "login" ? "username" : "email"}
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="authInput"
-            />
-          </div>
+            {error && <p className="authError" role="alert">{error}</p>}
 
-          <div className="authField">
-            <label htmlFor="auth-password">Password</label>
-            <div className="authPasswordWrap">
+            <button
+              type="submit"
+              className="primaryButton authSubmit"
+              disabled={loading || !email}
+              id="auth-submit-email-btn"
+            >
+              {loading ? "Sending Code…" : "Continue with Email"}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleVerifyOtp} noValidate className="authForm">
+            <div className="authField">
+              <label htmlFor="auth-otp">6-Digit Code</label>
               <input
-                id="auth-password"
-                type={showPass ? "text" : "password"}
-                autoComplete={mode === "login" ? "current-password" : "new-password"}
-                placeholder={mode === "login" ? "••••••••" : "Min. 6 characters"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                id="auth-otp"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                placeholder="123456"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
                 required
-                className="authInput authInputPassword"
+                className="authInput authInputOtp"
+                ref={otpInputRef}
+                style={{ letterSpacing: "8px", textAlign: "center", fontSize: "1.25rem", fontWeight: "bold" }}
               />
-              <button
-                type="button"
-                className="authTogglePass"
-                onClick={() => setShowPass((v) => !v)}
-                aria-label={showPass ? "Hide password" : "Show password"}
-                id="auth-toggle-pass"
+            </div>
+
+            {error && <p className="authError" role="alert">{error}</p>}
+
+            <button
+              type="submit"
+              className="primaryButton authSubmit"
+              disabled={loading || otp.length < 6}
+              id="auth-submit-otp-btn"
+            >
+              {loading ? "Verifying…" : "Verify Code"}
+            </button>
+            
+            <div className="authFormActions" style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', textAlign: 'center', fontSize: '0.875rem' }}>
+              <button 
+                type="button" 
+                onClick={() => handleSendOtp()} 
+                disabled={cooldown > 0 || loading}
+                style={{ color: cooldown > 0 ? '#888' : 'var(--accent)', background: 'none', border: 'none', cursor: cooldown > 0 ? 'not-allowed' : 'pointer', fontWeight: 500 }}
               >
-                {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                {cooldown > 0 ? `Resend code in ${cooldown}s` : "Resend code"}
+              </button>
+              <button 
+                type="button" 
+                onClick={() => { setStep("email"); setOtp(""); setError(null); }}
+                style={{ color: '#888', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                Change email address
               </button>
             </div>
-          </div>
-
-          {error && (
-            <p className="authError" role="alert">
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            className="primaryButton authSubmit"
-            disabled={loading}
-            id="auth-submit-btn"
-          >
-            {loading ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
-          </button>
-        </form>
+          </form>
+        )}
       </div>
     </div>
   );

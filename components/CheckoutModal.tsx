@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from "@/lib/cart";
+import { useSession } from "next-auth/react";
 import {
   X,
   User,
@@ -118,16 +119,17 @@ type PayStep = "idle" | "creating" | "paying" | "verifying" | "confirming";
 
 export function CheckoutModal({ onClose }: Props) {
   const { items, totalPrice, checkout, closeCart } = useCart();
+  const { data: session } = useSession();
 
   const [form, setForm] = useState<ShippingDetails>({
-    shippingName: "",
+    shippingName: session?.user?.name || "",
     flatHouseNo: "",
     area: "",
     city: "",
     state: "",
     pincode: "",
     shippingPhone: "",
-    shippingEmail: "",
+    shippingEmail: session?.user?.email || "",
   });
   const [errors, setErrors] = useState<Partial<ShippingDetails>>({});
   const [payStep, setPayStep] = useState<PayStep>("idle");
