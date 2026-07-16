@@ -10,7 +10,7 @@ import {
   type ReactNode
 } from "react";
 import { useSession } from "next-auth/react";
-import { PRODUCT_MAP } from "@/lib/products";
+import { PRODUCT_MAP, PACKS } from "@/lib/products";
 
 export type CartItem = {
   id: string;       // compound cart-line key: "<slug>-<cans>" (or just slug for single cans)
@@ -68,16 +68,23 @@ function clearGuestCart() {
 function fromServer(serverItem: {
   productId: string;
   quantity: number;
+  unitPrice: number;
   product: { name: string; accent: string; image: string; price: number };
 }): CartItem {
+  const pack = PACKS.find((p) => p.total === serverItem.unitPrice);
+  const cans = pack?.cans ?? 1;
+  const packLabel = pack?.label ?? "1 Can";
+
   return {
-    id: serverItem.productId,
+    id: pack ? `${serverItem.productId}-${cans}` : serverItem.productId,
     productId: serverItem.productId,
     name: serverItem.product.name,
     accent: serverItem.product.accent,
     image: serverItem.product.image,
-    price: serverItem.product.price,
-    quantity: serverItem.quantity
+    price: serverItem.unitPrice ?? serverItem.product.price,
+    quantity: serverItem.quantity,
+    packLabel,
+    cans
   };
 }
 
@@ -110,7 +117,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           ? fetch("/api/cart/merge", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ items: guest.map(i => ({ id: i.id, quantity: i.quantity })) })
+              body: JSON.stringify({ items: guest.map(i => ({ id: i.productId, quantity: i.quantity, unitPrice: i.price })) })
             })
           : Promise.resolve();
 

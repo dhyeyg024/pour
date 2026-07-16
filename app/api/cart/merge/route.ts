@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   }
 
   const { items } = await req.json() as {
-    items: Array<{ id: string; quantity: number }>;
+    items: Array<{ id: string; quantity: number; unitPrice?: number }>;
   };
 
   if (!Array.isArray(items) || items.length === 0) {
@@ -27,10 +27,14 @@ export async function POST(req: Request) {
   let merged = 0;
   for (const guestItem of items) {
     if (!PRODUCT_MAP.has(guestItem.id) || guestItem.quantity < 1) continue;
+    
+    const product = PRODUCT_MAP.get(guestItem.id)!;
+    const resolvedUnitPrice = typeof guestItem.unitPrice === "number" ? guestItem.unitPrice : product.price;
+
     await db.cartItem.upsert({
       where: { cartId_productId: { cartId: cart.id, productId: guestItem.id } },
-      update: { quantity: { increment: guestItem.quantity } },
-      create: { cartId: cart.id, productId: guestItem.id, quantity: guestItem.quantity }
+      update: { quantity: { increment: guestItem.quantity }, unitPrice: resolvedUnitPrice },
+      create: { cartId: cart.id, productId: guestItem.id, quantity: guestItem.quantity, unitPrice: resolvedUnitPrice }
     });
     merged++;
   }
