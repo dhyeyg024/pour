@@ -2,6 +2,7 @@
 const nextConfig = {
   poweredByHeader: false,
   outputFileTracingRoot: import.meta.dirname,
+  serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg", "bcryptjs", "razorpay", "resend"],
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 31536000, // 1 year – images are static assets

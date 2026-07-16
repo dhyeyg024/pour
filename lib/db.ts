@@ -18,7 +18,16 @@ function createClient() {
   });
 }
 
-export const db = globalForPrisma.prisma ?? createClient();
+function getDb(): PrismaClient {
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = createClient();
+  }
+  return globalForPrisma.prisma;
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+export const db = new Proxy({} as PrismaClient, {
+  get(_, prop) {
+    return (getDb() as any)[prop];
+  },
+});
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, useEffect, useRef } from "react";
+import { useState, type FormEvent, useEffect, useRef, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Droplets } from "lucide-react";
@@ -8,7 +8,7 @@ import Link from "next/link";
 
 type Step = "email" | "otp";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -194,5 +194,13 @@ export default function LoginPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
