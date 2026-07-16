@@ -62,7 +62,7 @@ export async function POST(req: Request) {
   }
 
   const total = cart.items.reduce<number>(
-    (sum, item) => sum + item.unitPrice * item.quantity,
+    (sum: number, item) => sum + item.unitPrice * item.quantity,
     0
   );
 
