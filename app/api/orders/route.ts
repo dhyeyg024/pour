@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+
+// Derive the transaction-client type from db.$transaction without importing
+// Prisma namespace (removed in Prisma v7).
+type TransactionClient = Parameters<
+  Extract<Parameters<typeof db.$transaction>[0], (...args: never[]) => unknown>
+>[0];
 
 // GET /api/orders — fetch user's order history
 export async function GET() {
@@ -68,7 +73,7 @@ export async function POST(req: Request) {
     0
   );
 
-  const order = await db.$transaction(async (tx: Prisma.TransactionClient) => {
+  const order = await db.$transaction(async (tx: TransactionClient) => {
     const newOrder = await tx.order.create({
       data: {
         userId: session.user.id,
