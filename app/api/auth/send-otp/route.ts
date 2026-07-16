@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     // Send the email using Resend
     const { data, error } = await resend.emails.send({
-      from: "POUR <onboarding@resend.dev>",
+      from: "POUR <otp@pourproteinwater.in>",
       to: [emailStr],
       subject: "Your POUR Login Code",
       html: `
