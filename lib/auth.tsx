@@ -12,9 +12,10 @@ export type User = {
   avatar: string; // two-letter initials
 };
 
-function getAvatar(name?: string | null): string {
-  if (!name) return "??";
-  return name
+function getAvatar(name?: string | null, email?: string | null): string {
+  const text = name || email;
+  if (!text) return "??";
+  return text
     .trim()
     .split(" ")
     .map((w) => w[0])
@@ -28,11 +29,11 @@ export function useAuth() {
 
   const user: User | null = session?.user
     ? {
-        id: session.user.id,
-        name: session.user.name ?? "",
-        email: session.user.email ?? "",
-        avatar: getAvatar(session.user.name)
-      }
+      id: session.user.id,
+      name: session.user.name ?? "",
+      email: session.user.email ?? "",
+      avatar: getAvatar(session.user.name, session.user.email)
+    }
     : null;
 
   return {
