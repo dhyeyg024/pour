@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Cart is empty." }, { status: 400 });
   }
 
-  const total = cart.items.reduce(
+  const total = cart.items.reduce<number>(
     (sum, item) => sum + item.unitPrice * item.quantity,
     0
   );
