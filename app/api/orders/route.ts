@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 
@@ -67,7 +68,7 @@ export async function POST(req: Request) {
     0
   );
 
-  const order = await db.$transaction(async (tx) => {
+  const order = await db.$transaction(async (tx: Prisma.TransactionClient) => {
     const newOrder = await tx.order.create({
       data: {
         userId: session.user.id,
@@ -81,7 +82,7 @@ export async function POST(req: Request) {
         razorpayOrderId: razorpayOrderId ?? null,
         razorpayPaymentId: razorpayPaymentId ?? null,
         items: {
-          create: cart.items.map((item) => ({
+          create: cart.items.map((item: { productId: string; quantity: number; unitPrice: number }) => ({
             productId: item.productId,
             quantity: item.quantity,
             priceAtOrder: item.unitPrice
