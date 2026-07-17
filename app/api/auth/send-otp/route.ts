@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
           <div style="background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; margin: 20px 0; border-radius: 8px;">
             ${otp}
           </div>
-          <p style="color: #666; font-size: 14px;">This code will expire in 10 minutes.</p>
+          <p style="color: #666; font-size: 14px;">This code will expire in 6 minutes.</p>
           <p style="color: #666; font-size: 14px;">If you didn't request this code, you can safely ignore this email.</p>
         </div>
       `,
