@@ -19,7 +19,7 @@ const flavours = [
     id: "guava-chilli",
     name: "Guava Chilli",
     description:
-      "India's most unexpected protein flavour. Pink guava with a slow chilli finish - refreshing first, warm second. The can nobody puts down after one sip.",
+      "Soft guava sweetness upfront. Finished with a mild chilli kick.",
     accent: "#f05a45",
     image: "/images/guava-chilli-hero.png",
     splash: "/images/guava-chilli-splash.png",
@@ -28,7 +28,7 @@ const flavours = [
     id: "raw-mango",
     name: "Raw Mango",
     description:
-      "Kachha aam in a can. Sharp, tangy, and built for hot afternoons. The flavour every Indian already knows - now doing protein work.",
+      "The taste of kachha aam, perfectly chilled. Bright, tangy and mouth-watering",
     accent: "#f2c21b",
     image: "/images/raw-mango-hero.png",
     splash: "/images/raw-mango-splash.png",
@@ -37,7 +37,7 @@ const flavours = [
     id: "watermelon",
     name: "Watermelon",
     description:
-      "Cool, clean, and crisp. The easiest POUR to drink - refreshing fruit water energy with 10g of protein underneath it.",
+      "Sweet watermelon with a clean finish. Cool, clean and beautiful crisp.",
     accent: "#ff3030",
     image: "/images/watermelon-hero.png",
     splash: "/images/watermelon-splash.png",
@@ -50,7 +50,7 @@ const nutrition = [
   ["Energy", "42 kcal per serving"],
   ["Serve size", "250 ml can"],
   ["Fat", "0g total fat"],
-  ["Cholesterol", "0mg"]
+  ["Cholesterol", "0 mg"]
 ];
 
 const productSchema = {
@@ -246,14 +246,14 @@ export default function Home() {
             >
               Shop now <ArrowRight size={18} aria-hidden="true" />
             </TrackButton>
-            <TrackButton
+            {/* <TrackButton
               className="secondaryButton"
               eventName="cta_click"
               eventLabel="hero_flavours"
               href="#contact"
             >
               For Enquiry
-            </TrackButton>
+            </TrackButton> */}
           </div>
           <dl className="heroStats" aria-label="POUR highlights">
             <div>
@@ -336,7 +336,7 @@ export default function Home() {
         </div>
         <div className="nutritionContent">
           <p className="sectionKicker">Nutrition facts</p>
-          <h2 id="nutrition-title">Built for people who don't want to think about protein.
+          <h2 id="nutrition-title">Open. Sip. Done.
           </h2>
           <p>
             POUR is made with whey protein isolate - the cleanest protein source available. Crafted to be drunk cold, not mixed, not measured, not thought about. Just opened.

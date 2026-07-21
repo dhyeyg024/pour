@@ -21,12 +21,12 @@ export type Pack = {
 
 /** All available pack sizes, ordered from smallest to largest */
 export const PACKS: Pack[] = [
-  { label: "1 Can",       cans: 1,  total: 149,   perCan: 149 },
-  { label: "Pack of 6",   cans: 6,  total: 799,   perCan: 133, badge: "Save ₹95" },
-  { label: "Pack of 8",   cans: 8,  total: 1049,  perCan: 131, badge: "Save ₹143" },
-  { label: "Pack of 10",  cans: 10, total: 1299,  perCan: 129, badge: "Save ₹191" },
-  { label: "Pack of 12",  cans: 12, total: 1499,  perCan: 125, badge: "Save ₹289" },
-  { label: "Pack of 24",  cans: 24, total: 2699,  perCan: 112, badge: "Best Value" },
+  { label: "Try Pour", cans: 1, total: 149, perCan: 149 },
+  { label: "Pack of 6", cans: 6, total: 799, perCan: 133, badge: "Save ₹95" },
+  { label: "Pack of 8", cans: 8, total: 1049, perCan: 131, badge: "Save ₹143" },
+  { label: "Pack of 10", cans: 10, total: 1299, perCan: 129, badge: "Save ₹191" },
+  { label: "Pack of 12", cans: 12, total: 1499, perCan: 125, badge: "Save ₹289" },
+  { label: "Pack of 24", cans: 24, total: 2699, perCan: 112, badge: "Best Value" },
 ];
 
 export const PRODUCTS: Product[] = [

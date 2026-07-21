@@ -44,7 +44,7 @@ export function NavBar() {
               {user.avatar}
             </div>
             <span className="navUserName">{user.name.split(" ")[0]}</span>
-            <button
+            {/* <button
               className="navLogout"
               onClick={logout}
               aria-label="Sign out"
@@ -52,7 +52,7 @@ export function NavBar() {
               title="Sign out"
             >
               <LogOut size={16} />
-            </button>
+            </button> */}
           </div>
         ) : (
           <Link

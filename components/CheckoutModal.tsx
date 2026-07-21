@@ -342,8 +342,8 @@ export function CheckoutModal({ onClose }: Props) {
           <div className="coBody">
             {/* ── LEFT: Shipping form ── */}
             <section className="coFormSection">
-              <p className="coSectionKicker">Step 1 of 1</p>
-              <h2 className="coFormTitle">Shipping &amp; Contact</h2>
+              {/* <p className="coSectionKicker">Step 1 of 1</p> */}
+              <h2 className="coFormTitle">Where should we send it?</h2>
 
               <div className="coForm">
                 <Field
