@@ -275,12 +275,64 @@ h3 {
 
 .flavourImage {
   position: relative;
-  height: 360px;
+  height: 420px;
   margin: -12px -8px 18px;
 }
 
 .flavourImage img {
   object-fit: contain;
+}
+
+.productGallery {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.productGalleryMain {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.productGalleryMainImg {
+  object-fit: contain;
+}
+
+.productGalleryThumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+
+.productGalleryThumb {
+  position: relative;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 160ms ease, opacity 160ms ease;
+}
+
+.productGalleryThumb:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.productGalleryThumbActive {
+  border-color: var(--accent, #fff);
+}
+
+.productGalleryThumb img {
+  object-fit: contain;
+  padding: 4px;
 }
 
 .flavourCard>p:first-of-type {
@@ -320,6 +372,18 @@ h3 {
   min-height: 520px;
   border-radius: var(--radius);
   overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.imageCarousel {
+  position: absolute;
+  inset: 0;
+}
+
+.imageCarouselImg {
+  object-fit: contain;
+  object-position: center;
+  padding: 12px clamp(16px, 4vw, 28px);
 }
 
 .nutritionGrid {
@@ -429,7 +493,11 @@ h3 {
   }
 
   .nutritionVisual {
-    min-height: 390px;
+    min-height: min(72vw, 420px);
+  }
+
+  .imageCarouselImg {
+    padding-inline: clamp(20px, 6vw, 32px);
   }
 }
 
@@ -459,7 +527,7 @@ h3 {
   }
 
   .flavourImage {
-    height: 320px;
+    height: 380px;
   }
 }
 

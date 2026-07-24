@@ -13,6 +13,11 @@ import { TrackButton } from "@/components/TrackButton";
 import { NavBar } from "@/components/NavBar";
 import { PackSelector } from "@/components/PackSelector";
 import { ImageCarousel } from "@/components/ImageCarousel";
+import { ProductImageGallery } from "@/components/ProductImageGallery";
+
+function productImage(filename: string) {
+  return `/images/${encodeURIComponent(filename)}`;
+}
 
 const flavours = [
   {
@@ -21,7 +26,13 @@ const flavours = [
     description:
       "Soft guava sweetness upfront. Finished with a mild chilli kick.",
     accent: "#f05a45",
-    image: "/images/guava-chilli-hero.png",
+    images: [
+      productImage("Guava Chilli 1.png"),
+      productImage("Guava Chilli 2.png"),
+      productImage("Guava chilli 3.png"),
+      productImage("Guava Chilli 4.png"),
+      productImage("Guava Chilli 6.png"),
+    ],
     splash: "/images/guava-chilli-splash.png",
   },
   {
@@ -30,7 +41,13 @@ const flavours = [
     description:
       "The taste of kachha aam, perfectly chilled. Bright, tangy and mouth-watering",
     accent: "#f2c21b",
-    image: "/images/raw-mango-hero.png",
+    images: [
+      productImage("Raw mango pour 1.png"),
+      productImage("raw mango pour 2.png"),
+      productImage("Raw mango pour 3.png"),
+      productImage("raw mango pour 4.png"),
+      productImage("raw mango pour 6.png"),
+    ],
     splash: "/images/raw-mango-splash.png",
   },
   {
@@ -39,7 +56,13 @@ const flavours = [
     description:
       "Sweet watermelon with a clean finish. Cool, clean and incredibly smooth.",
     accent: "#ff3030",
-    image: "/images/watermelon-hero.png",
+    images: [
+      productImage("Watermelon Pour 1.png"),
+      productImage("Watermelon pour 2.png"),
+      productImage("Watermelon pour 3 .png"),
+      productImage("Watermelon pour 4.png"),
+      productImage("Watermelon pour 6.png"),
+    ],
     splash: "/images/watermelon-splash.png",
   }
 ];
@@ -63,11 +86,7 @@ const productSchema = {
   },
   description:
     "A zero sugar, low calorie protein water with 10g protein per 250 ml can in Guava Chilli, Raw Mango, and Watermelon flavours.",
-  image: [
-    "/images/guava-chilli-hero.png",
-    "/images/raw-mango-hero.png",
-    "/images/watermelon-hero.png"
-  ],
+  image: flavours.flatMap((flavour) => flavour.images),
   offers: {
     "@type": "Offer",
     priceCurrency: "INR",
@@ -297,12 +316,10 @@ export default function Home() {
               style={{ "--accent": flavour.accent } as CSSProperties}
             >
               <div className="flavourImage">
-                <Image
-                  src={flavour.image}
+                <ProductImageGallery
+                  images={flavour.images}
                   alt={`POUR ${flavour.name} protein water can`}
-                  fill
-                  sizes="(max-width: 760px) 82vw, 30vw"
-                  loading="lazy"
+                  accent={flavour.accent}
                 />
               </div>
               {/* <p>{flavour.tone}</p> */}
@@ -314,7 +331,7 @@ export default function Home() {
                   id: flavour.id,
                   name: flavour.name,
                   accent: flavour.accent,
-                  image: flavour.image,
+                  image: flavour.images[0],
                 }}
               />
 
@@ -327,9 +344,9 @@ export default function Home() {
         <div className="nutritionVisual">
           <ImageCarousel
             images={[
-              "/images/raw-mango-lineup.png",
-              "/images/guava-chilli-lineup.png",
-              "/images/watermelon-lineup.png"
+              productImage("Guava Chilli 5.png"),
+              productImage("Raw mango pour 5.png"),
+              productImage("Watermelon pour 5.png"),
             ]}
             alt="POUR product lineup"
           />

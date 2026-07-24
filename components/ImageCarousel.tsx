@@ -20,7 +20,7 @@ export function ImageCarousel({ images, alt }: ImageCarouselProps) {
   }, [images.length]);
 
   return (
-    <>
+    <div className="imageCarousel">
       {images.map((src, index) => (
         <Image
           key={src}
@@ -28,6 +28,7 @@ export function ImageCarousel({ images, alt }: ImageCarouselProps) {
           alt={`${alt} - Slide ${index + 1}`}
           fill
           sizes="(max-width: 900px) 100vw, 52vw"
+          className="imageCarouselImg"
           style={{
             opacity: index === currentIndex ? 1 : 0,
             transition: "opacity 0.8s ease-in-out",
@@ -35,6 +36,6 @@ export function ImageCarousel({ images, alt }: ImageCarouselProps) {
           loading={index === 0 ? "lazy" : undefined}
         />
       ))}
-    </>
+    </div>
   );
 }
