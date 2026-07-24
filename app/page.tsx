@@ -37,7 +37,7 @@ const flavours = [
     id: "watermelon",
     name: "Watermelon",
     description:
-      "Sweet watermelon with a clean finish. Cool, clean and beautiful crisp.",
+      "Sweet watermelon with a clean finish. Cool, clean and incredibly smooth.",
     accent: "#ff3030",
     image: "/images/watermelon-hero.png",
     splash: "/images/watermelon-splash.png",
@@ -235,7 +235,7 @@ export default function Home() {
           <p className="eyebrow">CARBONATED PROTEIN WATER - MADE IN INDIA</p>
           <h1>POUR Protein Water</h1>
           <p className="heroCopy">
-            Looks like a sparking drink. Hits like Protein. 10g protein, real fruit flavour, ZERO sugar - in every chilled can.
+            Sparkling refreshment with real fruit flavour. Protein, reimagined for everyday drinking.
           </p>
           <div className="heroActions">
             <TrackButton
@@ -278,15 +278,15 @@ export default function Home() {
           <h2 id="why-pour">Protein that drinks like water.</h2>
         </div>
         <div className="introGrid">
-          <Feature icon={<Droplets />} title="Light and sparkling" text="Carbonated. Crisp. Nothing thick, nothing chalky. Crack it open cold and drink the whole thing." />
-          <Feature icon={<Leaf />} title="Real fruit flavour" text="Guava Chilli. Raw Mango. Watermelon. Built for the Indian palate - not copied from a Western supplement catalogue." />
-          <Feature icon={<Sparkles />} title="Nothing unnecessary" text="Zero sugar. Zero fat. No preservatives. No artificial colours. Just protein, fruit, and carbonated water." />
+          <Feature icon={<Droplets />} title="Light and sparkling" text="Carbonated. Crisp. Clean. Never thick, Never chalky." />
+          <Feature icon={<Leaf />} title="Real Ingredients" text="Real fruit. Real flavour. Built around Indian flavours." />
+          <Feature icon={<Sparkles />} title="Nothing unnecessary" text="Only what matters. Protein, fruit & carbonated water." />
         </div>
       </section>
 
       <section className="flavours section" id="flavours" aria-labelledby="flavours-title">
         <div className="sectionHeader" id="flavours-header">
-          <p className="sectionKicker">Three flavours</p>
+          <p className="sectionKicker">Best served chilled</p>
           <h2 id="flavours-title">Choose your POUR.</h2>
         </div>
         <div className="flavourGrid">
@@ -349,14 +349,14 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <p className="note">Contains milk. Nutrition values are based on product pack information.</p>
+          <p className="note">Contains milk. Nutrition information is based on the packaged product.</p>
         </div>
       </section>
 
 
       <section className="contact section" id="contact" aria-labelledby="contact-title">
         <div>
-          <p className="sectionKicker">Contact</p>
+          <p className="sectionKicker">Get in Touch</p>
           <h2 id="contact-title">Bring POUR to your customers.</h2>
           <p>
             For retail stocking, distributor partnerships, or bulk orders - get in touch. We are currently onboarding our first retail and distribution partners across India.
