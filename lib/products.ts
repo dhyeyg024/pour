@@ -37,7 +37,7 @@ export const PRODUCTS: Product[] = [
     description:
       "Pink guava freshness with a clean chilli finish for people who like their hydration with a little spark.",
     accent: "#f05a45",
-    image: "/images/guava-chilli-hero.png",
+    image: "/images/Guava Chilli 1.png",
     price: 150
   },
   {
@@ -47,7 +47,7 @@ export const PRODUCTS: Product[] = [
     description:
       "Sharp green mango notes, citrusy lift, and a crisp finish built for hot afternoons and post-workout resets.",
     accent: "#f2c21b",
-    image: "/images/raw-mango-hero.png",
+    image: "/images/Raw mango pour 1.png",
     price: 150
   },
   {
@@ -57,7 +57,7 @@ export const PRODUCTS: Product[] = [
     description:
       "A cool watermelon profile with a refreshing fruit-water feel and a clean zero-sugar finish.",
     accent: "#ff3030",
-    image: "/images/watermelon-hero.png",
+    image: "/images/Watermelon Pour 1.png",
     price: 150
   }
 ];

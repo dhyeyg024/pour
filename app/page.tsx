@@ -16,8 +16,10 @@ import { ImageCarousel } from "@/components/ImageCarousel";
 import { ProductImageGallery } from "@/components/ProductImageGallery";
 
 function productImage(filename: string) {
-  return `/images/${encodeURIComponent(filename)}`;
+  return `/images/${filename}`;
 }
+
+const heroImage = productImage("Guava Chilli 1.png");
 
 const flavours = [
   {
@@ -33,7 +35,7 @@ const flavours = [
       productImage("Guava Chilli 4.png"),
       productImage("Guava Chilli 6.png"),
     ],
-    splash: "/images/guava-chilli-splash.png",
+    splash: productImage("Guava Chilli 1.png"),
   },
   {
     id: "raw-mango",
@@ -48,7 +50,7 @@ const flavours = [
       productImage("raw mango pour 4.png"),
       productImage("raw mango pour 6.png"),
     ],
-    splash: "/images/raw-mango-splash.png",
+    splash: productImage("Raw mango pour 1.png"),
   },
   {
     id: "watermelon",
@@ -63,7 +65,7 @@ const flavours = [
       productImage("Watermelon pour 4.png"),
       productImage("Watermelon pour 6.png"),
     ],
-    splash: "/images/watermelon-splash.png",
+    splash: productImage("Watermelon Pour 1.png"),
   }
 ];
 
@@ -241,7 +243,7 @@ export default function Home() {
 
         <div className="heroMedia" aria-hidden="true">
           <Image
-            src="/images/guava-chilli-splash.png"
+            src={heroImage}
             alt=""
             fill
             priority

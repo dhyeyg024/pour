@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     siteName: "POUR Protein Water",
     images: [
       {
-        url: "/images/guava-chilli-splash.png",
+        url: "/images/Guava Chilli 1.png",
         width: 1024,
         height: 1536,
         alt: "POUR Guava Chilli protein water can with splash"
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "POUR Protein Water",
     description: "10g protein per can, zero sugar, low calorie protein water.",
-    images: ["/images/guava-chilli-splash.png"]
+    images: ["/images/Guava Chilli 1.png"]
   },
   robots: {
     index: true,
