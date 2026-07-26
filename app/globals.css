@@ -120,6 +120,12 @@ h1 {
   letter-spacing: 0;
 }
 
+.brandHeading {
+  font-family: var(--font-montserrat), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
 h2 {
   margin-bottom: 18px;
   font-size: clamp(34px, 5vw, 72px);
@@ -461,7 +467,7 @@ h3 {
 
 @media (max-width: 900px) {
   .hero {
-    min-height: 860px;
+    min-height: 100svh;
     align-items: end;
   }
 
@@ -503,7 +509,7 @@ h3 {
 
 @media (max-width: 560px) {
   .hero {
-    min-height: 820px;
+    min-height: 100svh;
     padding-bottom: 36px;
   }
 
@@ -1818,4 +1824,105 @@ h3 {
   .coFormTitle {
     font-size: 22px;
   }
+}
+
+/* ── Payment Method Toggle ───────────────────────────────────────────────── */
+.coPayMethodSection {
+  margin: 4px 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.coPayMethodLabel {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+
+.coPayMethodToggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.coPayMethodBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 44px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 160ms, color 160ms, background 160ms;
+}
+
+.coPayMethodBtn:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--text);
+}
+
+.coPayMethodBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.coPayMethodBtnActive {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(212, 163, 74, 0.08);
+}
+
+.coPayMethodBtnActive.coPayMethodBtnCOD {
+  border-color: #4ade80;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.08);
+}
+
+.coCODNote {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  background: rgba(74, 222, 128, 0.05);
+}
+
+/* COD pay button */
+.coPayBtnCOD.primaryButton {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+}
+
+.coPayBtnCOD.primaryButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+}
+
+/* COD success icon */
+.coSuccessIconCOD {
+  color: #4ade80;
+}
+
+/* COD badge on success screen */
+.coCODBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(74, 222, 128, 0.35);
+  background: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
+  font-size: 12px;
+  font-weight: 700;
 }

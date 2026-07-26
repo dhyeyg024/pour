@@ -39,7 +39,7 @@ type CartCtx = {
   clearCart: () => void;
   openCart: () => void;
   closeCart: () => void;
-  checkout: (details: { shippingName: string; shippingAddress: string; shippingPhone: string; shippingEmail?: string; razorpayOrderId?: string; razorpayPaymentId?: string }) => Promise<{ ok: boolean; orderId?: string; error?: string }>;
+  checkout: (details: { shippingName: string; shippingAddress: string; shippingPhone: string; shippingEmail?: string; paymentMethod?: "COD" | "RAZORPAY"; razorpayOrderId?: string; razorpayPaymentId?: string }) => Promise<{ ok: boolean; orderId?: string; error?: string }>;
 };
 
 const CartContext = createContext<CartCtx | null>(null);
@@ -50,7 +50,20 @@ const GUEST_CART_KEY = "pour_cart_guest";
 function readGuestCart(): CartItem[] {
   try {
     const raw = localStorage.getItem(GUEST_CART_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const items = raw ? JSON.parse(raw) : [];
+    // Hydrate stale image/name from PRODUCT_MAP
+    return items.map((item: CartItem) => {
+      const fresh = PRODUCT_MAP.get(item.productId);
+      if (fresh) {
+        return {
+          ...item,
+          name: fresh.name,
+          accent: fresh.accent,
+          image: fresh.image
+        };
+      }
+      return item;
+    });
   } catch {
     return [];
   }
@@ -75,12 +88,14 @@ function fromServer(serverItem: {
   const cans = pack?.cans ?? 1;
   const packLabel = pack?.label ?? "1 Can";
 
+  const fresh = PRODUCT_MAP.get(serverItem.productId);
+
   return {
     id: pack ? `${serverItem.productId}-${cans}` : serverItem.productId,
     productId: serverItem.productId,
-    name: serverItem.product.name,
-    accent: serverItem.product.accent,
-    image: serverItem.product.image,
+    name: fresh?.name ?? serverItem.product.name,
+    accent: fresh?.accent ?? serverItem.product.accent,
+    image: fresh?.image ?? serverItem.product.image,
     price: serverItem.unitPrice ?? serverItem.product.price,
     quantity: serverItem.quantity,
     packLabel,
@@ -231,6 +246,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     shippingAddress: string;
     shippingPhone: string;
     shippingEmail?: string;
+    paymentMethod?: "COD" | "RAZORPAY";
     razorpayOrderId?: string;
     razorpayPaymentId?: string;
   }) => {

@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   CheckCircle2,
   Loader2,
+  Truck,
 } from "lucide-react";
 import Image from "next/image";
 import Script from "next/script";
@@ -116,6 +117,7 @@ type Props = {
 };
 
 type PayStep = "idle" | "creating" | "paying" | "verifying" | "confirming";
+type PaymentMethod = "RAZORPAY" | "COD";
 
 export function CheckoutModal({ onClose }: Props) {
   const { items, totalPrice, checkout, closeCart } = useCart();
@@ -134,7 +136,8 @@ export function CheckoutModal({ onClose }: Props) {
   const [errors, setErrors] = useState<Partial<ShippingDetails>>({});
   const [payStep, setPayStep] = useState<PayStep>("idle");
   const [apiError, setApiError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<{ orderId: string; address: string } | null>(null);
+  const [success, setSuccess] = useState<{ orderId: string; address: string; isCOD: boolean; total: number } | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("RAZORPAY");
 
   // Prevent body scroll while modal is open
   useEffect(() => {
@@ -142,6 +145,30 @@ export function CheckoutModal({ onClose }: Props) {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = prev; };
   }, []);
+
+  // Fetch City and State from Pincode
+  useEffect(() => {
+    async function fetchPinCodeDetails() {
+      const pin = form.pincode.trim();
+      if (pin.length === 6 && /^\d{6}$/.test(pin)) {
+        try {
+          const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+          const data = await res.json();
+          if (data && data[0].Status === "Success" && data[0].PostOffice && data[0].PostOffice.length > 0) {
+            const po = data[0].PostOffice[0];
+            setForm((f) => ({
+              ...f,
+              city: po.District || f.city,
+              state: po.State || f.state,
+            }));
+          }
+        } catch (error) {
+          console.error("Failed to fetch pincode details:", error);
+        }
+      }
+    }
+    fetchPinCodeDetails();
+  }, [form.pincode]);
 
   function validate(): boolean {
     const next: Partial<ShippingDetails> = {};
@@ -167,6 +194,32 @@ export function CheckoutModal({ onClose }: Props) {
     return Object.keys(next).length === 0;
   }
 
+  // ── COD checkout ─────────────────────────────────────────────────────────────
+  const handleCOD = useCallback(async () => {
+    if (!validate()) return;
+    setApiError(null);
+    setPayStep("confirming");
+
+    const fullAddress = `${form.flatHouseNo.trim()}, ${form.area.trim()}, ${form.city.trim()}, ${form.state.trim()} – ${form.pincode.trim()}`;
+
+    const result = await checkout({
+      shippingName: form.shippingName.trim(),
+      shippingAddress: fullAddress,
+      shippingPhone: form.shippingPhone.trim(),
+      shippingEmail: form.shippingEmail.trim() || undefined,
+      paymentMethod: "COD",
+    });
+
+    setPayStep("idle");
+    if (result.ok && result.orderId) {
+      setSuccess({ orderId: result.orderId, address: fullAddress, isCOD: true, total: totalPrice });
+    } else {
+      setApiError(result.error ?? "Order placement failed. Please try again.");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, checkout]);
+
+  // ── Razorpay checkout ─────────────────────────────────────────────────────
   const handlePayNow = useCallback(async () => {
     if (!validate()) return;
     setApiError(null);
@@ -250,13 +303,14 @@ export function CheckoutModal({ onClose }: Props) {
             shippingAddress: fullAddress,
             shippingPhone: form.shippingPhone.trim(),
             shippingEmail: form.shippingEmail.trim() || undefined,
+            paymentMethod: "RAZORPAY",
             razorpayOrderId: response.razorpay_order_id,
             razorpayPaymentId: response.razorpay_payment_id,
           });
 
           setPayStep("idle");
           if (result.ok && result.orderId) {
-            setSuccess({ orderId: result.orderId, address: fullAddress });
+            setSuccess({ orderId: result.orderId, address: fullAddress, isCOD: false, total: totalPrice });
           } else {
             setApiError(result.error ?? "Payment succeeded but order creation failed. Please contact support.");
           }
@@ -319,14 +373,25 @@ export function CheckoutModal({ onClose }: Props) {
         {success ? (
           /* ── Success state ── */
           <div className="coSuccess">
-            <div className="coSuccessIcon">
-              <CheckCircle2 size={56} strokeWidth={1.5} />
+            <div className={`coSuccessIcon${success.isCOD ? " coSuccessIconCOD" : ""}`}>
+              {success.isCOD
+                ? <Truck size={56} strokeWidth={1.5} />
+                : <CheckCircle2 size={56} strokeWidth={1.5} />}
             </div>
-            <h2 className="coSuccessTitle">Payment Successful!</h2>
+            <h2 className="coSuccessTitle">
+              {success.isCOD ? "Order Placed! Pay on Delivery." : "Payment Successful!"}
+            </h2>
             <p className="coSuccessSub">
               Your order <strong>#{success.orderId.slice(0, 8).toUpperCase()}</strong> is confirmed.
-              We&apos;ll ship it soon!
+              {success.isCOD
+                ? " Please keep the exact amount ready at the time of delivery."
+                : " We'll ship it soon!"}
             </p>
+            {success.isCOD && (
+              <div className="coCODBadge">
+                <Truck size={14} /> Cash on Delivery &middot; ₹{success.total.toLocaleString("en-IN")} due at door
+              </div>
+            )}
             <div className="coSuccessDetail">
               <p className="coSuccessDetailLine">
                 📦 Shipping to <strong>{form.shippingName}</strong>
@@ -459,7 +524,7 @@ export function CheckoutModal({ onClose }: Props) {
                     <div className="coItemInfo">
                       <p className="coItemName">{item.name}</p>
                       <p className="coItemMeta">
-                        {item.packLabel ?? "1 Can"} × {item.quantity}
+                        {item.packLabel ?? "1 Can"} &times; {item.quantity}
                       </p>
                     </div>
                     <p className="coItemTotal">₹{(item.price * item.quantity).toLocaleString("en-IN")}</p>
@@ -482,33 +547,94 @@ export function CheckoutModal({ onClose }: Props) {
                 <strong>₹{totalPrice.toLocaleString("en-IN")}</strong>
               </div>
 
+              {/* ── Payment Method Toggle ── */}
+              <div className="coPayMethodSection">
+                <p className="coPayMethodLabel">Payment Method</p>
+                <div className="coPayMethodToggle">
+                  <button
+                    id="pay-method-razorpay"
+                    className={`coPayMethodBtn${paymentMethod === "RAZORPAY" ? " coPayMethodBtnActive" : ""}`}
+                    onClick={() => setPaymentMethod("RAZORPAY")}
+                    disabled={isLoading}
+                    type="button"
+                  >
+                    <CreditCard size={15} />
+                    Pay Online
+                  </button>
+                  <button
+                    id="pay-method-cod"
+                    className={`coPayMethodBtn${paymentMethod === "COD" ? " coPayMethodBtnActive coPayMethodBtnCOD" : ""}`}
+                    onClick={() => setPaymentMethod("COD")}
+                    disabled={isLoading}
+                    type="button"
+                  >
+                    <Truck size={15} />
+                    Cash on Delivery
+                  </button>
+                </div>
+                {paymentMethod === "COD" && (
+                  <p className="coCODNote">
+                    Pay ₹{totalPrice.toLocaleString("en-IN")} in cash when your order arrives.
+                    Please keep exact change ready.
+                  </p>
+                )}
+              </div>
+
               {apiError && (
                 <p className="coApiError">{apiError}</p>
               )}
 
-              <button
-                className="primaryButton coPayBtn"
-                id="checkout-pay-btn"
-                disabled={isLoading}
-                onClick={handlePayNow}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 size={17} className="coSpinner" />
-                    {payButtonLabel()}
-                  </>
-                ) : (
-                  <>
-                    <CreditCard size={17} />
-                    Pay ₹{totalPrice.toLocaleString("en-IN")}
-                  </>
-                )}
-              </button>
-
-              <p className="coPayNote">
-                <ShoppingBag size={13} />
-                Secured by Razorpay · UPI, Cards, Netbanking &amp; more
-              </p>
+              {paymentMethod === "COD" ? (
+                <>
+                  <button
+                    className="primaryButton coPayBtn coPayBtnCOD"
+                    id="checkout-cod-btn"
+                    disabled={isLoading}
+                    onClick={handleCOD}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 size={17} className="coSpinner" />
+                        {payButtonLabel() ?? "Placing order…"}
+                      </>
+                    ) : (
+                      <>
+                        <Truck size={17} />
+                        Place Order &middot; Pay on Delivery
+                      </>
+                    )}
+                  </button>
+                  <p className="coPayNote">
+                    <ShoppingBag size={13} />
+                    Cash on Delivery &middot; Pay when your order arrives
+                  </p>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="primaryButton coPayBtn"
+                    id="checkout-pay-btn"
+                    disabled={isLoading}
+                    onClick={handlePayNow}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 size={17} className="coSpinner" />
+                        {payButtonLabel()}
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard size={17} />
+                        Pay ₹{totalPrice.toLocaleString("en-IN")}
+                      </>
+                    )}
+                  </button>
+                  <p className="coPayNote">
+                    <ShoppingBag size={13} />
+                    Secured by Razorpay &middot; UPI, Cards, Netbanking &amp; more
+                  </p>
+                </>
+              )}
             </aside>
           </div>
         )}

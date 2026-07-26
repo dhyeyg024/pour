@@ -254,7 +254,7 @@ export default function Home() {
 
         <div className="heroContent">
           <p className="eyebrow">CARBONATED PROTEIN WATER - MADE IN INDIA</p>
-          <h1>POUR Protein Water</h1>
+          <h1 className="brandHeading">POUR Protein Water</h1>
           <p className="heroCopy">
             Sparkling refreshment with real fruit flavour. Protein, reimagined for everyday drinking.
           </p>

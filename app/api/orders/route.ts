@@ -37,6 +37,7 @@ export async function POST(req: Request) {
     shippingAddress?: string;
     shippingPhone?: string;
     shippingEmail?: string;
+    paymentMethod?: "COD" | "RAZORPAY";
     razorpayOrderId?: string;
     razorpayPaymentId?: string;
   } = {};
@@ -47,6 +48,7 @@ export async function POST(req: Request) {
     shippingAddress,
     shippingPhone,
     shippingEmail,
+    paymentMethod = "RAZORPAY",
     razorpayOrderId,
     razorpayPaymentId,
   } = body;
@@ -78,8 +80,9 @@ export async function POST(req: Request) {
       data: {
         userId: session.user.id,
         total,
-        // CONFIRMED because Razorpay payment was verified before this call
-        status: razorpayPaymentId ? "CONFIRMED" : "PENDING",
+        // COD orders are COD_PENDING until delivered; Razorpay orders are CONFIRMED after payment
+        status: paymentMethod === "COD" ? "COD_PENDING" : (razorpayPaymentId ? "CONFIRMED" : "PENDING"),
+        paymentMethod,
         shippingName: shippingName.trim(),
         shippingAddress: shippingAddress.trim(),
         shippingPhone: shippingPhone.trim(),

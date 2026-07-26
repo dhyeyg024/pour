@@ -105,18 +105,21 @@ model CartItem {
 // ─── Orders ───────────────────────────────────────────────────────────────────
 
 model Order {
-  id        String      @id @default(cuid())
+  id        String        @id @default(cuid())
   userId    String
-  status    OrderStatus @default(PENDING)
+  status    OrderStatus   @default(PENDING)
   total     Float
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
   // Shipping / contact details collected at checkout
   shippingName    String  @default("")
   shippingAddress String  @default("")
   shippingPhone   String  @default("")
   shippingEmail   String?
+
+  // Payment method
+  paymentMethod PaymentMethod @default(RAZORPAY)
 
   // Razorpay payment reference (set after successful payment)
   razorpayOrderId   String?
@@ -128,10 +131,16 @@ model Order {
 
 enum OrderStatus {
   PENDING
+  COD_PENDING
   CONFIRMED
   SHIPPED
   DELIVERED
   CANCELLED
+}
+
+enum PaymentMethod {
+  RAZORPAY
+  COD
 }
 
 model OrderItem {

@@ -5,14 +5,25 @@ import { useAuth } from "@/lib/auth";
 import { X, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckoutModal } from "@/components/CheckoutModal";
 
 export function CartDrawer() {
-  const { items, isOpen, closeCart, removeItem, updateQty, totalItems, totalPrice } = useCart();
+  const { items, isOpen, closeCart, openCart, removeItem, updateQty, totalItems, totalPrice } = useCart();
   const { user } = useAuth();
   const router = useRouter();
   const [showCheckout, setShowCheckout] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (user && params.get("checkout") === "true") {
+        if (!isOpen) openCart();
+        setShowCheckout(true);
+        router.replace(window.location.pathname);
+      }
+    }
+  }, [user, isOpen, openCart, router]);
 
   if (!isOpen) return null;
 
@@ -133,7 +144,11 @@ export function CartDrawer() {
                 <button
                   className="primaryButton cartCheckout"
                   id="cart-login-btn"
-                  onClick={() => { closeCart(); router.push("/login"); }}
+                  onClick={() => { 
+                    closeCart(); 
+                    const currentPath = typeof window !== "undefined" ? window.location.pathname : "/";
+                    router.push(`/login?callbackUrl=${encodeURIComponent(currentPath + "?checkout=true")}`); 
+                  }}
                 >
                   Sign in to checkout
                 </button>

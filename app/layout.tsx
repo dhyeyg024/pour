@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Inter } from "next/font/google";
+import { Inter, Montserrat } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
@@ -11,6 +11,12 @@ const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter"
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-montserrat"
 });
 
 const siteUrl = "https://www.pourproteinwater.com";
@@ -70,7 +76,7 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${inter.variable} ${montserrat.variable}`}>
       <body>
         <SessionProvider>
           <CartProvider>
