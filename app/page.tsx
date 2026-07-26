@@ -19,7 +19,7 @@ function productImage(filename: string) {
   return `/images/${filename}`;
 }
 
-const heroImage = productImage("Guava Chilli 1.png");
+const heroImage = productImage("Guava Chilli 4.png");
 
 const flavours = [
   {
@@ -61,7 +61,7 @@ const flavours = [
     images: [
       productImage("Watermelon Pour 1.png"),
       productImage("Watermelon pour 2.png"),
-      productImage("Watermelon pour 3 .png"),
+      productImage("Watermelon pour 3.png"),
       productImage("Watermelon pour 4.png"),
       productImage("Watermelon pour 6.png"),
     ],
