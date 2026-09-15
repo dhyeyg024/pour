@@ -84,13 +84,21 @@ export default function RootLayout({
             <CartDrawer />
           </CartProvider>
         </SessionProvider>
-        {/* ✅ Google AdSense – replace with your actual publisher ID */}
+        {/* ✅ Google Analytics 4 – replace G-XXXXXXXXXX with your Measurement ID */}
         <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
-          crossOrigin="anonymous"
+          src="https://www.googletagmanager.com/gtag/js?id=G-GEHJX13DTZ"
           strategy="afterInteractive"
         />
+        <Script id="ga4-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-GEHJX13DTZ', {
+              page_path: window.location.pathname,
+            });
+          `}
+        </Script>
       </body>
     </html>
   );
