@@ -8,15 +8,37 @@ type TransactionClient = Parameters<
   Extract<Parameters<typeof db.$transaction>[0], (...args: never[]) => unknown>
 >[0];
 
-// GET /api/orders — fetch user's order history
-export async function GET() {
+// GET /api/orders — fetch order history by email or session user
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const emailParam = searchParams.get("email")?.trim().toLowerCase();
+
   const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const searchEmail = emailParam || session?.user?.email?.toLowerCase();
+
+  if (!searchEmail && !session?.user?.id) {
+    return NextResponse.json({ error: "Email parameter or session required" }, { status: 400 });
+  }
+
+  const ORConditions = [];
+
+  if (session?.user?.id) {
+    ORConditions.push({ userId: session.user.id });
+  }
+
+  if (searchEmail) {
+    ORConditions.push({
+      user: {
+        email: { equals: searchEmail, mode: "insensitive" as const }
+      }
+    });
+    ORConditions.push({
+      shippingEmail: { equals: searchEmail, mode: "insensitive" as const }
+    });
   }
 
   const orders = await db.order.findMany({
-    where: { userId: session.user.id },
+    where: { OR: ORConditions },
     include: { items: { include: { product: true } } },
     orderBy: { createdAt: "desc" }
   });

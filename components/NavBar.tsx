@@ -11,14 +11,15 @@ export function NavBar() {
 
   return (
     <nav className="nav" aria-label="Main navigation">
-      <a className="brand" href="#top" aria-label="POUR home">
+      <Link className="brand" href="/" aria-label="POUR home">
         POUR
-      </a>
+      </Link>
 
       <div className="navLinks">
-        <a href="#flavours">Flavours</a>
-        <a href="#nutrition">Nutrition</a>
-        <a href="#contact">Contact</a>
+        <Link href="/orders">Orders</Link>
+        <Link href="/#flavours">Flavours</Link>
+        <Link href="/#nutrition">Nutrition</Link>
+        <Link href="/#contact">Contact</Link>
       </div>
 
       <div className="navActions">
