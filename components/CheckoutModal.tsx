@@ -18,6 +18,7 @@ import {
 import Image from "next/image";
 import Script from "next/script";
 import { useState, useEffect, useCallback } from "react";
+import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
 
 // ── Razorpay window type augmentation ────────────────────────────────────────
 declare global {
@@ -146,6 +147,14 @@ export function CheckoutModal({ onClose }: Props) {
     return () => { document.body.style.overflow = prev; };
   }, []);
 
+  // Fire begin_checkout once when the modal opens
+  useEffect(() => {
+    if (items.length > 0) {
+      trackBeginCheckout(totalPrice, items);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Fetch City and State from Pincode
   useEffect(() => {
     async function fetchPinCodeDetails() {
@@ -212,6 +221,12 @@ export function CheckoutModal({ onClose }: Props) {
 
     setPayStep("idle");
     if (result.ok && result.orderId) {
+      trackPurchase({
+        orderId: result.orderId,
+        total: totalPrice,
+        paymentMethod: "COD",
+        items,
+      });
       setSuccess({ orderId: result.orderId, address: fullAddress, isCOD: true, total: totalPrice });
     } else {
       setApiError(result.error ?? "Order placement failed. Please try again.");
@@ -310,6 +325,12 @@ export function CheckoutModal({ onClose }: Props) {
 
           setPayStep("idle");
           if (result.ok && result.orderId) {
+            trackPurchase({
+              orderId: result.orderId,
+              total: totalPrice,
+              paymentMethod: "RAZORPAY",
+              items,
+            });
             setSuccess({ orderId: result.orderId, address: fullAddress, isCOD: false, total: totalPrice });
           } else {
             setApiError(result.error ?? "Payment succeeded but order creation failed. Please contact support.");

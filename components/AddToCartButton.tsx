@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart, type CartItem } from "@/lib/cart";
+import { trackAddToCart } from "@/lib/analytics";
 import { ShoppingCart, Check } from "lucide-react";
 import { useState, useCallback } from "react";
 
@@ -14,6 +15,7 @@ export function AddToCartButton({ item }: Props) {
 
   const handleClick = useCallback(() => {
     addItem(item);
+    trackAddToCart(item);
     setAdded(true);
     setTimeout(() => setAdded(false), 1600);
   }, [addItem, item]);
