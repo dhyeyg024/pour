@@ -92,11 +92,9 @@ export default function RootLayout({
         <Script id="ga4-init" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-GEHJX13DTZ', {
-              page_path: window.location.pathname,
-            });
+            window.gtag = function gtag(){ window.dataLayer.push(arguments); };
+            window.gtag('js', new Date());
+            window.gtag('config', 'G-GEHJX13DTZ');
           `}
         </Script>
       </body>
